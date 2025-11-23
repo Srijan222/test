@@ -1,0 +1,15 @@
+export 'gateway/matrix_sdk_gateway.dart';
+export 'gateway/matrix_sync_gateway.dart';
+export 'matrix/client.dart';
+export 'matrix/config.dart';
+export 'matrix/consts.dart';
+export 'matrix/key_verification_runner.dart';
+export 'matrix/last_read.dart';
+export 'matrix/matrix_message_sender.dart';
+export 'matrix/matrix_service.dart';
+export 'matrix/read_marker_service.dart';
+export 'matrix/session_manager.dart';
+export 'matrix/stats.dart';
+export 'matrix/sync_engine.dart';
+export 'matrix/sync_lifecycle_coordinator.dart';
+export 'matrix/sync_room_manager.dart';

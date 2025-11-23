@@ -1,0 +1,108 @@
+name: Build Flatpak
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  flatpak:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0  # Need full history for git describe
+
+    - name: Debug git information
+      run: |
+        echo "GitHub context information:"
+        echo "Event name: ${{ github.event_name }}"
+        echo "GitHub SHA: ${{ github.sha }}"
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          echo "PR head SHA: ${{ github.event.pull_request.head.sha }}"
+        fi
+        echo ""
+        echo "Git log (last 5 commits):"
+        git log --oneline -5
+        echo ""
+        echo "Current HEAD:"
+        git rev-parse HEAD
+
+    - name: Install Flatpak and dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y flatpak flatpak-builder
+
+        # Add Flathub repository
+        sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+        # Install required runtime and SDK
+        sudo flatpak install -y flathub org.freedesktop.Platform//24.08
+        sudo flatpak install -y flathub org.freedesktop.Sdk//24.08
+        sudo flatpak install -y flathub org.freedesktop.Sdk.Extension.llvm20//24.08
+        sudo flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//24.08
+
+    - name: Run manifest helper tests
+      run: |
+        cd flatpak
+        python3 -m venv .venv
+        source .venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install pytest pyyaml
+        python -m pytest manifest_tool/tests
+
+    - name: Update manifest with current commit
+      run: |
+        # Always use the actual HEAD commit from the checked out repository
+        # This ensures we use the real commit that exists in the repo, not GitHub's merge commits
+        COMMIT_SHA=$(git rev-parse HEAD)
+        echo "Using repository HEAD commit: $COMMIT_SHA"
+
+        # Update the manifest commit placeholder with the actual commit
+        cd flatpak
+        ./create_local_manifest.sh "$COMMIT_SHA"
+
+        # Show the updated manifest (works for both upstream and fork URLs)
+        echo "Manifest updated with commit:"
+        grep -A2 -E "url:.*lotti" com.matthiasn.lotti.yml | grep -E "url:.*/lotti"
+
+    - name: Build Flatpak
+      run: |
+        cd flatpak
+        # Use --user with --install to install at user level (no sudo required)
+        # Also export to repo for creating the bundle
+        flatpak-builder --verbose --user --install --force-clean --repo=repo build-dir com.matthiasn.lotti.yml
+
+    - name: Verify Flatpak (post-build)
+      run: |
+        flatpak --version
+        flatpak list
+
+    - name: Create Flatpak bundle
+      run: |
+        cd flatpak
+        flatpak build-bundle repo lotti.flatpak com.matthiasn.lotti
+
+    - name: Upload Flatpak bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: lotti-flatpak-${{ github.run_number }}
+        path: flatpak/lotti.flatpak
+        retention-days: 30
+
+    - name: Lint Flatpak manifest
+      working-directory: flatpak
+      run: |
+        flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        flatpak install --user --noninteractive -y flathub app/org.flatpak.Builder
+        export XDG_RUNTIME_DIR="${RUNNER_TEMP}/xdg-runtime"
+        mkdir -p "$XDG_RUNTIME_DIR"
+        chmod 700 "$XDG_RUNTIME_DIR"
+        dbus-run-session -- flatpak run --user --command=flatpak-builder-lint org.flatpak.Builder//stable manifest com.matthiasn.lotti.yml

@@ -1,0 +1,33 @@
+name: Type Check
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: |
+        pip install mypy types-requests
+
+    - name: Run MyPy Type Checking
+      run: |
+        mypy . --ignore-missing-imports || true
+        echo "::warning::MyPy found issues but workflow continues. See logs above."
+      continue-on-error: true

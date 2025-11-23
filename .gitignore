@@ -1,64 +1,200 @@
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Logs
-logs/
+# Miscellaneous
+*.class
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage
-coverage/
-*.lcov
-.nyc_output
-
-# Build outputs
-dist/
-build/
-out/
-
-# IDE
-.vscode/
-.idea/
+*.pyc
 *.swp
-*.swo
-*~
 .DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+*.env
+*.lock
 
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.*
-*.tfvars
-!terraform.tfvars.example
-.terraform.lock.hcl
-crash.log
-override.tf
-override.tf.json
-
-# Docker
-docker-compose.override.yml
-
-# OS
-Thumbs.db
-.DS_Store
-
-# Temporary files
+.claude/
 tmp/
-temp/
-*.tmp
+
+# Flatpak generated files
+flatpak/*.generated.*
+flatpak/build-dir/
+flatpak/repo/
+flatpak/flathub-build/
+flatpak/flatpak-flutter/
+*.flatpak
+flatpak/com.matthiasn.lotti.generated.yml
+
+!Podfile.lock
+!pubspec.lock
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+
+
+# Web related
+lib/generated_plugin_registrant.dart
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/app/.cxx/
+/android/build/
+/ios/build
+
+/coverage
+
+/config/mail.yaml
+local.properties
+
+classes.viz.png
+classes.viz.puml
+
+missing_translations.txt
+
+nohup.out
+
+TEST-report.jsonl
+TEST-report.xml
+junit.xml
+
+test_resources/test.aac.aes
+test_resources/test.png.aes
+
+screenshots
+
+whisper.cpp/*.zip
+whisper.cpp/whisper.cpp-*/
+
+# FVM Version Cache
+.fvm/
+.fvm/flutter_sdk
+
+integration_test/docker/config/jetstream/
+integration_test/docker/config/logs/
+integration_test/docker/config/media_store/
+macos/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+
+# Android build artifacts
+/android/app/.cxx/
+
+# FastWhisper build artifacts
+fastwhisper_server/build/
+fastwhisper_server/dist/
+
+CLAUDE.local.md
+
+# Python virtual environments
+venv/
+**/venv/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+python_lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Large binary files
+*.dylib
+*.so
+*.dll
+*.pkg
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.bin
+*.dat
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Backup directories
+**/backup/
+**/backups/
+**/fastwhisper_backup/
+
+# FastWhisper backup and build files
+fastwhisper_backup/
+**/fastwhisper_backup/
+**/build/
+!flatpak/manifest_tool/build/
+!flatpak/manifest_tool/build/**
+**/dist/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Environments
+.env
+.venv
+env/
+ENV/
+
+test/.test_optimizer.dart

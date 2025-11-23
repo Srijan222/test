@@ -1,342 +1,186 @@
-# Claude Cloud Environment
-
-A comprehensive cloud infrastructure setup for deploying Claude AI applications on AWS using Docker, Terraform, and automated CI/CD pipelines.
-
-## Features
-
-- **Containerized Deployment**: Docker and Docker Compose configuration
-- **Infrastructure as Code**: Terraform scripts for AWS ECS/Fargate deployment
-- **CI/CD Pipeline**: GitHub Actions workflows for automated testing and deployment
-- **Production-Ready**: Includes monitoring, logging, and security best practices
-- **Scalable Architecture**: AWS ECS Fargate with auto-scaling capabilities
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   AWS Cloud                          │
-│  ┌───────────────────────────────────────────────┐  │
-│  │              VPC (10.0.0.0/16)                │  │
-│  │  ┌─────────────────────────────────────────┐  │  │
-│  │  │         Public Subnets                   │  │  │
-│  │  │  ┌──────────────┐  ┌──────────────┐     │  │  │
-│  │  │  │ ECS Fargate  │  │ ECS Fargate  │     │  │  │
-│  │  │  │   Task 1     │  │   Task 2     │     │  │  │
-│  │  │  └──────────────┘  └──────────────┘     │  │  │
-│  │  └─────────────────────────────────────────┘  │  │
-│  │                                                │  │
-│  │  ┌─────────────┐  ┌──────────────┐           │  │
-│  │  │ CloudWatch  │  │   Secrets    │           │  │
-│  │  │    Logs     │  │   Manager    │           │  │
-│  │  └─────────────┘  └──────────────┘           │  │
-│  └───────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
-```
-
-## Prerequisites
-
-- Node.js 20 or higher
-- Docker and Docker Compose
-- AWS CLI configured with appropriate credentials
-- Terraform 1.0 or higher
-- Anthropic API key
-
-## Quick Start
-
-### Local Development
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd claude-cloud-environment
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your ANTHROPIC_API_KEY
-   ```
-
-4. Run locally:
-   ```bash
-   npm start
-   ```
-
-5. Access the application at `http://localhost:3000`
-
-### Docker Deployment
-
-1. Build and run with Docker Compose:
-   ```bash
-   docker-compose up -d
-   ```
-
-2. Check logs:
-   ```bash
-   docker-compose logs -f
-   ```
-
-3. Stop the containers:
-   ```bash
-   docker-compose down
-   ```
-
-## AWS Deployment
-
-### Prerequisites Setup
-
-1. Create an ECR repository:
-   ```bash
-   aws ecr create-repository \
-     --repository-name claude-cloud-environment \
-     --region us-east-1
-   ```
-
-2. Create S3 bucket for Terraform state:
-   ```bash
-   aws s3 mb s3://claude-terraform-state --region us-east-1
-   ```
-
-### Infrastructure Provisioning
-
-1. Navigate to the terraform directory:
-   ```bash
-   cd terraform
-   ```
-
-2. Copy and configure variables:
-   ```bash
-   cp terraform.tfvars.example terraform.tfvars
-   # Edit terraform.tfvars with your values
-   ```
-
-3. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
-
-4. Review the plan:
-   ```bash
-   terraform plan
-   ```
-
-5. Apply the infrastructure:
-   ```bash
-   terraform apply
-   ```
-
-### Deploy Application
-
-1. Build and push Docker image to ECR:
-   ```bash
-   # Login to ECR
-   aws ecr get-login-password --region us-east-1 | \
-     docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
-
-   # Build and tag
-   docker build -t claude-cloud-environment .
-   docker tag claude-cloud-environment:latest \
-     <account-id>.dkr.ecr.us-east-1.amazonaws.com/claude-cloud-environment:latest
+# Lotti
 
-   # Push
-   docker push <account-id>.dkr.ecr.us-east-1.amazonaws.com/claude-cloud-environment:latest
-   ```
-
-2. Update ECS service:
-   ```bash
-   aws ecs update-service \
-     --cluster claude-cluster-prod \
-     --service claude-app-service-prod \
-     --force-new-deployment
-   ```
+[![codecov](https://codecov.io/gh/matthiasn/lotti/graph/badge.svg?token=VB6FWvA1yW)](https://codecov.io/gh/matthiasn/lotti)
+[![CodeFactor](https://www.codefactor.io/repository/github/matthiasn/lotti/badge)](https://www.codefactor.io/repository/github/matthiasn/lotti)
+**Your AI‑powered context manager — a private, local‑first assistant for your tasks, notes, and audio.**
 
-## CI/CD Pipeline
+Lotti is an open-source personal assistant that helps you capture, organize, and understand your work and life through AI-enhanced task management, audio recordings, and intelligent summaries—all while keeping your data entirely under your control.
 
-The project includes GitHub Actions workflows for automated deployment:
+![AI Assistant](https://raw.githubusercontent.com/matthiasn/lotti-docs/main/images/0.9.662+3261/tasks_category_summary.png)
 
-### Workflows
-
-1. **Deploy to AWS** (`.github/workflows/deploy.yml`)
-   - Triggers on push to main/develop branches
-   - Runs tests
-   - Builds and pushes Docker image to ECR
-   - Deploys to ECS
+Read more on [**Substack**](https://matthiasnehlsen.substack.com) | [**Project Background**](docs/BACKGROUND.md)
 
-2. **PR Checks** (`.github/workflows/pr-checks.yml`)
-   - Runs on pull requests
-   - Lints code
-   - Tests Docker build
-   - Security scanning with Trivy
+## Table of Contents
+- [Why Lotti?](#why-lotti)
+  - [Example Use Cases](#example-use-cases)
+- [Core Features](#core-features)
+  - [AI-Powered Intelligence](#ai-powered-intelligence)
+  - [Comprehensive Tracking](#comprehensive-tracking)
+  - [Privacy & Control](#privacy--control)
+- [AI Provider Configuration](#ai-provider-configuration)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Beta Testing](#beta-testing)
+  - [Development](#development)
+- [Documentation](#documentation)
+- [Use Cases](#use-cases)
+  - [For Developers](#for-developers)
+  - [For Knowledge Workers](#for-knowledge-workers)
+  - [For Personal Growth](#for-personal-growth)
+- [Contributing](#contributing)
+- [Technical Stack](#technical-stack)
+- [Philosophy](#philosophy)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
+## Why Lotti?
 
-### Required GitHub Secrets
+Most AI-powered tools require you to upload and store your personal data on their servers, creating privacy risks and vendor lock-in. Lotti takes a different approach:
 
-Configure these secrets in your GitHub repository:
+- **Complete data ownership**: Your information stays on your devices. When you opt into cloud inference, European‑hosted, no‑retention providers are available
+- **Configurable AI providers per category**: Choose between OpenAI, Anthropic, Gemini, Ollama (local), or any OpenAI-compatible provider on a per-category basis
+- **Privacy-first design**: You control exactly what data gets shared with AI providers—only for specific inference calls via your API keys
+- **No vendor lock-in**: Your data remains portable and accessible, independent of any subscription
 
-- `AWS_ACCESS_KEY_ID`: AWS access key
-- `AWS_SECRET_ACCESS_KEY`: AWS secret key
-- `ANTHROPIC_API_KEY`: Your Anthropic API key
-- `ECR_REPOSITORY_URL`: Your ECR repository URL
-
-## API Endpoints
-
-### Health Check
-```bash
-GET /health
-```
-Returns application health status.
-
-### Root
-```bash
-GET /
-```
-Returns API information and available endpoints.
-
-### Chat Endpoint
-```bash
-POST /api/chat
-Content-Type: application/json
-
-{
-  "message": "Your message here"
-}
-```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `ANTHROPIC_API_KEY` | Anthropic API key | Yes | - |
-| `CLAUDE_MODEL` | Claude model version | No | claude-sonnet-4-5-20250929 |
-| `NODE_ENV` | Environment (development/production) | No | development |
-| `PORT` | Server port | No | 3000 |
-| `AWS_REGION` | AWS region | No | us-east-1 |
-
-### Terraform Variables
-
-See `terraform/variables.tf` for all available Terraform variables.
-
-## Monitoring and Logging
-
-- **CloudWatch Logs**: Application logs are sent to CloudWatch Logs
-- **ECS Container Insights**: Enabled for cluster monitoring
-- **Health Checks**: Automated health checks every 30 seconds
-
-### View Logs
-
-```bash
-# Using AWS CLI
-aws logs tail /ecs/claude-app-prod --follow
-
-# Using Terraform output
-terraform output cloudwatch_log_group
-```
-
-## Security
-
-- API keys stored in AWS Secrets Manager
-- Non-root container user
-- Security group restrictions
-- VPC isolation
-- Secrets excluded from version control
-- Regular security scanning with Trivy
-
-## Scaling
-
-### Manual Scaling
-
-Update the desired count in Terraform:
-```hcl
-desired_count = 3
-```
-
-Then apply:
-```bash
-terraform apply
-```
-
-### Auto Scaling (Future Enhancement)
-
-Add auto-scaling policies based on CPU/memory utilization or custom metrics.
-
-## Troubleshooting
-
-### Common Issues
-
-1. **ECS Task Fails to Start**
-   - Check CloudWatch logs for errors
-   - Verify environment variables and secrets
-   - Ensure security group allows necessary traffic
-
-2. **Docker Build Fails**
-   - Check Dockerfile syntax
-   - Verify base image availability
-   - Review build logs for specific errors
-
-3. **Terraform Apply Fails**
-   - Verify AWS credentials
-   - Check IAM permissions
-   - Review Terraform state
-
-### Debug Commands
-
-```bash
-# Check ECS service status
-aws ecs describe-services \
-  --cluster claude-cluster-prod \
-  --services claude-app-service-prod
-
-# View task details
-aws ecs describe-tasks \
-  --cluster claude-cluster-prod \
-  --tasks <task-id>
-
-# Test Docker container locally
-docker run -p 3000:3000 \
-  -e ANTHROPIC_API_KEY=your_key \
-  claude-cloud-environment
-```
-
-## Cost Estimation
-
-Approximate monthly AWS costs (us-east-1):
-
-- ECS Fargate (1 task, 0.25 vCPU, 0.5 GB): ~$15
-- CloudWatch Logs (10 GB): ~$5
-- Data Transfer: Variable
-- **Total**: ~$20-30/month (minimal usage)
+### Example Use Cases
+
+- Pick up a task from last week — see your last notes, time spent, and a one‑paragraph recap
+- Record a quick voice note — later it’s transcribed and turned into a checklist
+- Ask “What did I finish in June?” — get a dated list with brief summaries
+
+## Core Features
+
+*Currently, Lotti's AI capabilities are focused on task management and productivity. Habit tracking is fully functional but will receive AI enhancements in future updates.*
+
+### 🤖 AI-Powered Intelligence
+
+- **Smart Summaries**: Automatically generate summaries of tasks, capturing key points and progress
+- **Audio Transcription**: Transcribe recordings using either local Whisper (OpenAI's open weights model, 99 languages supported) or cloud providers with audio capabilities like Gemini Flash/Pro
+- **Context Recap**: Resume a task with a one‑screen recap of your latest notes, time, and progress
+- **Intelligent Checklists**: Transform rambling audio notes into actionable checklists
+- **Chat with Your Data**: Ask questions about your tasks, learnings, and achievements across any time period
+
+### 📝 Comprehensive Tracking
+
+- **Tasks**: Full lifecycle management (open, groomed, in progress, blocked, done, rejected)
+- **Audio Recording**: Capture thoughts, progress notes, and brain dumps
+- **Time Tracking**: Record time spent on tasks and projects
+- **Journal Entries**: Written reflections and documentation
+- **Habits**: Define and monitor daily habits and routines
+- **Health Data**: Import from Apple Health and other sources
+- **Custom Metrics**: Track anything that matters to you
+
+### 🔐 Privacy & Control
+
+- **Local-Only Storage**: All data is permanently stored only on your devices and never in the cloud
+- **Encrypted Sync**: End-to-end encrypted synchronization between your devices (desktop/laptop and mobile) using **[Matrix](https://matrix.org)** (requires a Matrix account — self-hosted or public homeserver)
+- **Selective AI Usage**: Configure AI providers per category—keep sensitive data completely local with Ollama but use state‑of‑the‑art (frontier) cloud models when appropriate
+- **Your API Keys**: When you choose cloud AI, data is shared only for that specific inference call. Please review the respective provider's terms and privacy policy to understand how they handle your data
+- **GDPR-Compliant Options**: European-hosted AI providers with no data retention policies available for enhanced privacy
+- **Built for on‑device**: Designed for the era when local AI inference becomes standard 
+
+## AI Provider Configuration
+
+Lotti supports multiple AI providers, configurable per category:
+
+- **Cloud Providers**: OpenAI, Anthropic Claude, Google Gemini
+- **Local Inference**: Ollama for complete privacy (requires capable hardware)
+  - Full functionality available with local models like Qwen3 (8B), GPT-OSS (20B/120B), Gemma3 (12B/27B)
+  - Combined with local Whisper for speech recognition, enables 100% offline AI capabilities
+- **OpenAI-Compatible**: Any provider with OpenAI-compatible APIs
+- **European Options**: GDPR-compliant hosted alternatives
+
+Configure different providers for different aspects of your life—use cutting-edge models for work projects while keeping personal reflections completely private with local inference. With sufficient hardware, you can run everything locally without any cloud dependency.
+
+## Getting Started
+
+### Installation
+
+See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for setup and development workflow.
+
+### Beta Testing
+
+- **Build it yourself**: for iOS, macOS, Android, Linux, Windows
+- **iOS/macOS**: TestFlight builds are available for select users, will be available more broadly in due course
+- **Linux**: See `tar.gz` files on **[GitHub releases](https://github.com/matthiasn/lotti/releases)** - will also be available via Flatpak soon
+
+### Development
+
+- Install Flutter ([instructions](https://docs.flutter.dev/get-started/install)) — FVM recommended; repo includes `.fvmrc`
+- Install dependencies: `make deps`
+- **Linux only**: Install emoji font support for proper emoji rendering:
+  ```bash
+  # First install the Noto Color Emoji font package:
+  # Debian/Ubuntu: sudo apt install fonts-noto-color-emoji
+  # Fedora: sudo dnf install google-noto-emoji-color-fonts
+  # Arch: sudo pacman -S noto-fonts-emoji
+
+  # Then configure fontconfig:
+  ./linux/install_emoji_fonts.sh
+  ```
+- Static analysis: `make analyze`
+- Tests: `make test` • Coverage report: `make coverage`
+- Code generation: `make build_runner` • Localization: `make l10n`
+- Run locally: macOS `fvm flutter run -d macos` • others `flutter run -d <device>`
+
+See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for detailed development setup.
+
+## Documentation
+
+- [Manual](docs/MANUAL.md) - How to use Lotti
+- [Background Story](docs/BACKGROUND.md) - The inspiration and evolution of Lotti
+- [Architecture](docs/ARCHITECTURE.md) - Technical design and AI integration
+- [Privacy Policy](PRIVACY.md) - Our commitment to your privacy
+- [Contributing](CONTRIBUTING.md) - How to help and our standards
+
+## Use Cases
+
+### For Developers
+- Track project progress with automatic context recovery
+- Document decisions and learnings with searchable audio notes
+- Generate sprint summaries and retrospectives from your task data
+
+### For Knowledge Workers
+- Maintain focus with AI-powered context switching
+- Build a searchable knowledge base from daily work
+- Track time and generate reports across projects
+
+### For Personal Growth
+- Monitor habits and health metrics
+- Reflect on achievements and learnings over time
+- Keep a multilingual audio journal
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Technical Stack
+
+- **Frontend**: Flutter (iOS, macOS, Android, Windows, Linux)
+- **AI Integration**: Multiple providers with streaming support, including Ollama for 100% private local inference
+- **Audio**: Local Whisper (OpenAI's open weights model) or cloud providers with multimodal audio support
+- **Storage**: Local SQLite, no cloud storage
+- **Synchronization**: End-to-end encrypted sync using **[Matrix](https://matrix.org)** infrastructure (requires a Matrix account)
+- **Testing**: Comprehensive unit and integration tests
+
+
+## Philosophy
+
+Lotti represents a different approach to AI-powered productivity:
+
+1. **Your data stays yours**: No company should own your thoughts and experiences
+2. **AI as a tool, not a service**: Use AI capabilities without subscription lock-in
+3. **Privacy by design**: Choose exactly what to share, when, and with whom
+4. **Future-focused**: Built for the coming era of powerful local AI
 
 ## License
 
-MIT License - see LICENSE file for details
+Lotti is open source under [LICENSE](LICENSE).
 
-## Support
+## Acknowledgments
 
-For issues and questions:
-- Open an issue in the GitHub repository
-- Check the troubleshooting section
-- Review AWS ECS and Terraform documentation
+Special thanks to the Flutter team, OpenAI for the Whisper model, and all contributors who believe in privacy-respecting AI tools.
 
-## Roadmap
+---
 
-- [ ] Add auto-scaling policies
-- [ ] Implement Application Load Balancer
-- [ ] Add multiple environment support (dev/staging/prod)
-- [ ] Integrate monitoring dashboard
-- [ ] Add backup and disaster recovery
-- [ ] Implement blue-green deployment
-- [ ] Add API rate limiting
-- [ ] Enhanced security with WAF
+**Building in public** • Follow development here on [GitHub](https://github.com/matthiasn/lotti) • Read updates on [Substack](https://matthiasnehlsen.substack.com)
